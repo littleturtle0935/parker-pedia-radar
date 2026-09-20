@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>@parker_pedia 衛教與科普索引</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    body{background:#eef2ef}
+    .app-shell{width:100%;max-width:1500px;margin:0 auto;background:#f5f7f5}
+    .author-icon{color:#fff;font-size:22px;font-weight:800}
+    .controls .sort-field{min-width:0}
+    .controls .sort-field select{max-width:90px}
+    .detail-type{color:#60766c;font-size:11px}
+    .source-links{display:flex;flex-wrap:wrap;gap:14px}
+    .source-links a{font-size:12px;font-weight:800;color:#00796f;text-decoration:none}
+    .source-links a:hover{text-decoration:underline}
+    .section-description{margin-bottom:12px}
+    .coverage{margin:0 0 18px}
+    .brand{font-size:15px}.profile-link{font-size:13px}.author h1{font-size:18px}.author p{font-size:12px}
+    .sidebar-heading{font-size:12px}.unit-button{font-size:14px}.unit-count,.sidebar-foot{font-size:12px}
+    .eyebrow{font-size:11px}.section-heading h2{font-size:26px}.result-count{font-size:13px}
+    .section-description{font-size:13px}.coverage{font-size:12px}.search-field input{font-size:13px}
+    .sort-field,.sort-field select{font-size:12px}.post-row-date{font-size:12px}.post-row-title{font-size:15px}
+    .post-row-summary{font-size:13px}.topic-label{font-size:11px}.detail-top{font-size:12px}
+    .detail-title{font-size:29px}.detail-summary{font-size:16px}.detail-heading{font-size:14px}
+    .detail-points{font-size:14px}.tag,.source-label,.source-links a{font-size:12px}
+    @media(min-width:1051px){.workspace{height:calc(100vh - 56px);min-height:0}.sidebar,.results,.detail{overflow-y:auto;min-height:0}}
+    @media(max-width:650px){.controls{flex-wrap:wrap}.search-field{flex-basis:100%}.controls .sort-field{flex:1}}
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">P</span><span>公開貼文雷達</span></div>
+      <a class="profile-link" href="https://www.threads.com/@parker_pedia" target="_blank" rel="noopener noreferrer">Threads 頁面 ↗</a>
+    </header>
+    <main class="workspace">
+      <aside class="sidebar" aria-label="主題單元">
+        <div class="author"><div class="author-icon" aria-hidden="true">P</div><div><h1>帕克</h1><p>@parker_pedia</p></div></div>
+        <div class="sidebar-heading">單元</div>
+        <nav id="unit-nav" class="unit-nav" aria-label="選擇單元"></nav>
+        <div class="sidebar-foot"><span id="source-count"></span><span>整理日期：2026-09-18</span></div>
+      </aside>
+      <section class="results" aria-label="貼文列表">
+        <div class="section-heading"><div><p class="eyebrow">THREADS / 公開串文與回覆</p><h2 id="current-unit">全部貼文</h2></div><span id="result-count" class="result-count" aria-live="polite"></span></div>
+        <p id="unit-description" class="section-description"></p>
+        <p class="coverage">收錄範圍：串文已往前讀到 2025/10，回覆已往前讀到 2026/07；此處整理衛教、科普主題內容，轉發頁重複項目不重算。</p>
+        <div class="controls">
+          <label class="search-field"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><input id="search" type="search" placeholder="搜尋主題、摘要、日期" aria-label="搜尋貼文"></label>
+          <label class="sort-field">類型 <select id="kind" aria-label="內容類型"><option value="">全部</option><option value="串文">串文</option><option value="回覆">回覆</option></select></label>
+          <label class="sort-field">排序 <select id="sort" aria-label="排序方式"><option value="new">最新優先</option><option value="old">最早優先</option></select></label>
+        </div>
+        <div id="post-list" class="post-list"></div>
+        <p id="empty-state" class="empty-state" hidden>找不到符合條件的貼文。</p>
+      </section>
+      <section class="detail" aria-label="貼文摘要"><div id="post-detail"></div></section>
+    </main>
+  </div>
+  <script>
+    const posts = [
+      { date: "2026-09-17", kind: "串文", category: "動物與寵物", title: "貓咪響片訓練", summary: "作者提到以響片訓練強化良好行為；附有 AI 標示媒體。", caution: "僅讀取貼文文字，沒有驗證訓練方法。", id: "DdX5p3ukzqK" },
+      { date: "2026-09-12", kind: "串文", category: "科技與資訊素養", title: "AI 搜尋的使用與付費比例", summary: "作者討論 AI 搜尋的使用落差。圖片替代文字標示「2025 台灣網路報告」及付費訂閱比例 8.54%。", caution: "尚未核對報告原文、抽樣與分母；不能直接推成所有人使用能力的比例。", id: "DdL609Ak5R8" },
+      { date: "2026-09-09", kind: "串文", category: "運動與解剖", title: "側平舉、肩峰與訓練負荷", summary: "作者以肩部解剖討論側平舉的動作風險和負重，並串連一則較長的生物力學回覆。", caution: "動作風險與個人肩部狀態有關；此處不轉成訓練處方。", id: "DdEZPjvk71j", related: [["DdEHRnik4cS", "相關長回覆"]] },
+      { date: "2026-09-09", kind: "回覆", category: "運動與解剖", title: "肩外展的解剖與研究指標", summary: "回覆討論 acromiohumeral distance、肩峰形態、critical shoulder angle、鎖骨動作及棘上肌。", caution: "多項解剖與風險推論尚未核對原始研究或附圖。", id: "DdEHRnik4cS" },
+      { date: "2026-09-09", kind: "回覆", category: "運動與解剖", title: "肩部骨性標記辨識", summary: "作者回覆另一則影片，辨別肱骨的大、小結節及肩峰附近構造。", caution: "需看原影片與圖片才能判斷指認是否正確。", id: "DdEd2k7EzPQ" },
+      { date: "2026-09-09", kind: "回覆", category: "科技與資訊素養", title: "如何判讀專業意見與研究", summary: "作者談研究範圍、證據完整性和客觀討論，不主張只憑少數研究或語氣判斷專業性。", caution: "屬資訊判讀觀點，未構成文獻審查。", id: "DdEOcJEk1f2" },
+      { date: "2026-09-07", kind: "回覆", category: "運動與解剖", title: "後仰頸部與暈眩的討論", summary: "作者在回覆中提到 beauty parlour syndrome、頸部伸展和椎動脈。", caution: "不能依此自我診斷暈眩；尚未核對病例及證據。", id: "Dc896pfEwD8" },
+      { date: "2026-09-05", kind: "回覆", category: "醫學研究", title: "汗孔角化症與外用藥研究", summary: "作者回覆病友，談 mevalonate 代謝、外用 statin 與 cholesterol，並稱有 2023、2025 年的小樣本試驗。", caution: "尚未核對論文、適用病型與治療效果；不可依貼文自行用藥，應與皮膚科醫師討論。", id: "Dc4V4ogE9li" },
+      { date: "2026-08-27", kind: "串文", category: "營養與代謝", title: "尿酸轉運蛋白與代謝", summary: "作者討論 ABCG2、URAT1、胰島素和飲食之間可能的關聯。", caution: "機轉論述不等於對個人高尿酸的診斷或飲食處方。", id: "DciBiWtEzsx" },
+      { date: "2026-08-23", kind: "串文", category: "科技與資訊素養", title: "AI 生成醫療反駁文字的判讀", summary: "作者評論 AI 輔助論辯與醫學證據的寫法；畫面包含一段癌症疫苗爭論截圖。", caution: "截圖不是作者已證實的醫療結論。", id: "DcYQa0Fk4Pw" },
+      { date: "2026-08-23", kind: "回覆", category: "醫學研究", title: "癌症疫苗與免疫耐受的討論", summary: "作者在回覆中談 Treg、IL-10、TGF 等免疫學概念及癌症疫苗爭議。", caution: "未核對研究設計與臨床效果，不應當作疫苗建議。", id: "DcYsvakk5eU" },
+      { date: "2026-08-15", kind: "回覆", category: "醫學研究", title: "薑、麻油與疼痛發炎機轉", summary: "作者討論食材成分與發炎或疼痛的可能機轉。", caution: "機轉證據不能直接推出臨床止痛效果。", id: "DcB7n_ME65w" },
+      { date: "2026-08-14", kind: "回覆", category: "營養與代謝", title: "膠原蛋白補充品的研究說法", summary: "作者回應補充膠原蛋白的爭論，提到雌激素成分與近年研究。", caution: "未核對產品成分、研究與個人風險；不能依此判斷某款補充品安全或有效。", id: "DcBavAjk7il" },
+      { date: "2026-08-14", kind: "串文", category: "營養與代謝", title: "冷飯、抗性澱粉與血糖反應", summary: "作者質疑冷飯產生的抗性澱粉是否足以造成明顯血糖差異，並希望看到測量。", caution: "尚未核對試驗與實際血糖變化；不能用於個人血糖管理。", id: "DcBKqkok1_W" },
+      { date: "2026-08-14", kind: "回覆", category: "營養與代謝", title: "含糖飲料、果糖與尿酸", summary: "作者在回覆中討論飲料與水果的糖分及尿酸關係。", caution: "未核對飲食劑量、族群和臨床研究。", id: "DcBFSdPkzVW" },
+      { date: "2026-08-13", kind: "回覆", category: "運動與解剖", title: "關節炎與健身車的回覆", summary: "作者向一位網友提議使用健身車，並談坐墊分擔膝部承重。", caution: "貼文中的時間和運動方式不是通用復健處方；需按個人關節狀態評估。", id: "Db_HGgtk9Jv" },
+      { date: "2026-08-12", kind: "回覆", category: "醫學研究", title: "第二型糖尿病緩解與停藥的主張", summary: "作者回覆糖友，主張飲食調整可能使病情緩解，並提及停藥。", caution: "尚未核對研究和個人適用性；不可自行停藥或變更治療，應由醫療團隊評估。", id: "Db6GDjiky_B" },
+      { date: "2026-08-09", kind: "回覆", category: "營養與代謝", title: "糖代謝與三酸甘油脂合成", summary: "作者在回覆中談 acetyl-CoA、malonyl-CoA、DHAP 與三酸甘油脂合成，並延伸到心血管風險。", caution: "代謝途徑及風險推論尚未獨立查證，不能作為個人飲食指引。", id: "Db0nb6ckwT-" },
+      { date: "2026-08-09", kind: "回覆", category: "醫學研究", title: "小蘇打、酸鹼與癌症的推測", summary: "作者回覆一則鹼性食物貼文，承認血液有酸鹼緩衝，同時提及小蘇打與癌症的推測。", caution: "這不是已驗證的癌症治療；不可用小蘇打或食療替代正規醫療。", id: "Db0unqCE-fN" },
+      { date: "2026-08-09", kind: "回覆", category: "醫學研究", title: "基因體整合與癌症研究線索", summary: "簡短回覆指向 genomic integration 與 cancer 議題。", caution: "原文未提供足夠脈絡，不能推導疾病風險結論。", id: "Db0eS6ikyN9" },
+      { date: "2026-08-07", kind: "串文", category: "運動與解剖", title: "扳手腕與手臂關節排列", summary: "作者以手臂解剖討論扳手腕時的關節排列及受力。", caution: "尚未核對附圖與傷害風險資料。", id: "DbuP5G4E7WT" },
+      { date: "2026-08-05", kind: "回覆", category: "醫學爭點", title: "疫苗與法院判決的轉述", summary: "作者轉貼第三方網站，聲稱荷蘭法院對 COVID-19 疫苗作出特定定性，並提及美國前防疫官員。", caution: "尚未找到或核對法院原始判決與可靠報導；不可把這則轉述當作已證實的事實。", id: "DbqdcM4kxI_" },
+      { date: "2026-08-05", kind: "回覆", category: "醫學爭點", title: "疫苗與心臟發炎機轉的主張", summary: "作者回覆心肌梗塞徵兆的提問時，談 mRNA 疫苗、LNP 與 IL-6 的可能機轉。", caution: "原提問與回覆談的心臟問題並未釐清，研究來源和風險大小未核對；不可據此推斷個人症狀原因。", id: "DbqDMUwE2aO" },
+      { date: "2026-08-05", kind: "回覆", category: "科技與資訊素養", title: "生理學教材的學習順序", summary: "作者回覆讀書討論，建議可從 Vander 生理學入門，再讀 Guyton，病理生理學前補生化。", caution: "屬個人學習建議，書名與版本可依需求另行確認。", id: "DboKCDxE0LP" },
+      { date: "2026-08-02", kind: "回覆", category: "醫學爭點", title: "疫苗與防疫決策的指控", summary: "作者在 COVID-19 疫苗討論中提出關於前防疫官員、治療藥物與疫苗決策的指控。", caution: "未核對原始文件或可靠證據；不可把指控視為已證實，亦不能作為疫苗或用藥決策依據。", id: "DbioZ8Lk4Y_" },
+      { date: "2026-07-30", kind: "回覆", category: "醫學爭點", title: "疫苗與癌症風險的研究主張", summary: "作者稱有疫苗與癌症風險的論文及全國統計，但這則回覆沒有列出可核對的具體研究。", caution: "尚未核對論文、研究設計與結論；不能從這則回覆推定疫苗造成癌症。", id: "DbapSQJE3lU" },
+      { date: "2026-07-24", kind: "串文", category: "醫學研究", title: "腸道微生物與發炎的文章分享", summary: "作者轉貼一篇談腸道菌相失衡與發炎的外部文章。", caution: "分享不等於證實因果；外部文章未逐段核對。", id: "DbKw-LzEwNQ" },
+      { date: "2026-07-18", kind: "串文", category: "科技與資訊素養", title: "數學、物理要學到多深", summary: "作者討論學習深度與如何理解數理概念。", caution: "屬學習方法觀點。", id: "Da5zQMakxjP" },
+      { date: "2026-07-13", kind: "回覆", category: "醫學研究", title: "睪固酮研究如何解讀", summary: "作者討論外源性與內源性睪固酮及研究解讀。", caution: "不能用於個人荷爾蒙用藥決策。", id: "Dat_fl7k6vX" },
+      { date: "2026-07-12", kind: "回覆", category: "營養與代謝", title: "低碳飲食與落髮證據", summary: "作者質疑低碳飲食會導致落髮的斷言，指出其所見研究只有部分月份達統計顯著，且使用自我報告資料。", caution: "原回覆的上文已無法顯示，研究也未獨立核對；不能據此排除或確定個人的落髮原因。", id: "DaqXdpEk8T1" },
+      { date: "2026-07-11", kind: "串文", category: "營養與代謝", title: "發芽馬鈴薯與茄鹼", summary: "作者發布發芽馬鈴薯主題影片的文字引介；先前另有一則茄鹼劑量的討論。", caution: "未觀看影片，也未核對原文提及的毒理數值或單顆馬鈴薯估算。", id: "Dap4iUokz1o", related: [["DXR4HfTE2Ro", "較早的茄鹼討論"], ["DXR4mvgkwB8", "LOAEL 名詞說明"]] },
+      { date: "2026-07-09", kind: "回覆", category: "科技與資訊素養", title: "AI 回答與獨立思辨", summary: "作者列舉 AI 在深層概念、最新爭議研究與真實經驗上的限制，提醒使用者辨別推理錯誤。", caution: "這是作者的資訊素養觀點，並非對所有模型能力的實測結論。", id: "Dak5_8jE2Wt" },
+      { date: "2026-07-03", kind: "串文", category: "營養與代謝", title: "精製油、污染物與暴露劑量", summary: "作者以污染物、暴露量和 MOE 概念討論精製油風險。", caution: "尚未核對暴露估算和風險閾值；不可只看是否檢出就下結論。", id: "DaUXkv-k68q", related: [["DaUdtvak-Ff", "含 EFSA 連結的回覆"]] },
+      { date: "2026-07-03", kind: "回覆", category: "營養與代謝", title: "EFSA 植物油污染物資料", summary: "作者在回覆中提供 EFSA process contaminants in vegetable oils and foods 的連結。", caution: "已見來源連結，但尚未核對其內容與作者推論是否一致。", id: "DaUdtvak-Ff" },
+      { date: "2026-07-02", kind: "回覆", category: "營養與代謝", title: "水果糖分、CGM 與 HbA1c", summary: "作者長回覆討論水果糖分與連續血糖監測、糖化血色素等指標。", caution: "涉及廣泛的個人飲食推論，需看適用族群和研究，不應照單執行。", id: "DaSyIJrkzO4" },
+      { date: "2026-06-21", kind: "回覆", category: "營養與代謝", title: "第二型糖尿病、胰島素阻抗與 VLDL", summary: "作者在回覆中談胰島素阻抗、VLDL 和代謝關係。", caution: "尚未核對個別機轉與臨床指引。", id: "DZ2CTZvE8dj" },
+      { date: "2026-06-15", kind: "串文", category: "運動與解剖", title: "跑姿影片與肌力推測", summary: "作者評論一段跑步影片，推測可能的肌力因素。", caution: "遠端影片無法確診個人的肌力或步態問題。", id: "DZlvhXCE2_r" },
+      { date: "2026-06-13", kind: "串文", category: "醫學研究", title: "LDL 與用藥觀點的轉貼", summary: "作者轉貼自己關於 LDL 風險指標及降脂用藥的回覆。", caution: "涉及心血管風險與用藥，尚未文獻審查；不可自行停藥或忽視高 LDL。", id: "DZho2IpkyO3", related: [["DZhnGRHE5Kb", "原回覆"]] },
+      { date: "2026-06-10", kind: "串文", category: "一般科學", title: "鋼琴觸鍵與音色研究", summary: "作者討論鋼琴擊弦槌、觸鍵與音色的研究解讀。", caution: "未核對引用的論文與影片。", id: "DZaQND9kw0i", related: [["DZaQYUikyPe", "相關影片連結"]] },
+      { date: "2026-05-27", kind: "串文", category: "營養與代謝", title: "藍莓份量與果糖", summary: "作者討論藍莓食用份量、果糖與代謝；另有延伸衛教貼文。", caution: "份量判斷未獨立查證，不應推成所有人的飲食限制。", id: "DYz3jf_k1Qs", related: [["DYz3yk0kw7I", "延伸貼文"]] },
+      { date: "2026-05-26", kind: "串文", category: "醫學研究", title: "極高 LDL 的個案逸聞", summary: "作者提及一名血脂數值極高但外觀看似健康者的故事。", caution: "個案與外觀不能證明高血脂安全；請勿據此改變檢查或治療。", id: "DYxRzzXE6iH" },
+      { date: "2026-05-25", kind: "串文", category: "動物與寵物", title: "貓咪挑食研究影片引介", summary: "作者介紹一支談貓咪食物選擇的影片。", caution: "Threads 僅見引介，未讀影片內容或原始研究。", id: "DYw0sURkwTL" },
+      { date: "2026-05-24", kind: "串文", category: "營養與代謝", title: "白飯與糖尿病風險研究的討論", summary: "作者回應一則白飯與第二型糖尿病風險的衛教內容，並列出部分參考研究。", caution: "未核對研究族群、攝取量或因果推論。", id: "DYsGa1-E0TY", related: [["DYsIH57E75w", "參考研究清單"]] },
+      { date: "2026-05-20", kind: "串文", category: "醫學研究", title: "LDL 風險觀點再分享", summary: "作者再次分享自己對 LDL 與健康風險的回覆。", caution: "未核對與臨床指引是否一致；不可作為停藥依據。", id: "DYkMs7sE2Mk", related: [["DYkBZe3E6tP", "原回覆"]] },
+      { date: "2026-05-19", kind: "串文", category: "一般科學", title: "鋼琴觸鍵實驗", summary: "作者提到鋼琴觸鍵與聲音的研究或示範影片。", caution: "尚未核對實驗細節。", id: "DYhWwAvk-SR", related: [["DYhWwkYkwnk", "相關連結"]] },
+      { date: "2026-04-20", kind: "串文", category: "一般科學", title: "牛頓第一運動定律的例子", summary: "作者以日常情境談慣性。", caution: "未核對影像脈絡。", id: "DXV3mb9jcnf" },
+      { date: "2026-04-18", kind: "串文", category: "營養與代謝", title: "美國膳食指引與米飯", summary: "作者談美國膳食指引對米飯攝取的看法。", caution: "尚未核對指引原文，不能當成官方建議的準確轉述。", id: "DXQhq12k2VB" },
+      { date: "2026-04-16", kind: "串文", category: "醫學研究", title: "記憶測驗與失智風險預測研究", summary: "作者介紹 Framingham Heart Study 資料的認知測驗建模研究。", caution: "研究中的預測模型不是個人診斷工具。", id: "DXLapaJE14r", related: [["DXLazxlkzIr", "作者貼出的論文"]] },
+      { date: "2026-04-15", kind: "串文", category: "醫學研究", title: "p-tau217 血液生物標記研究", summary: "作者介紹血漿 p-tau217 與阿茲海默症相關生物標記軌跡的研究。", caution: "尚未核對研究細節，也不是臨床篩檢建議。", id: "DXIwmThkzIL", related: [["DXIxbH_k_JX", "作者貼出的論文"]] },
+      { date: "2026-04-14", kind: "串文", category: "醫學研究", title: "飲水氟化物與認知的研究", summary: "作者提及一篇與氟化物暴露及不同年齡 IQ 表現相關的研究。", caution: "尚未核對原始研究、暴露量與結論；不能概括為所有氟化物暴露皆無風險。", id: "DXGYN95kzVv" },
+      { date: "2026-04-12", kind: "串文", category: "運動與解剖", title: "胸肌受傷與瘀青", summary: "作者談胸肌受傷可能出現的瘀青與解剖位置，附影片及後續貼文。", caution: "未核對影像，不能作為傷勢診斷。", id: "DXBPpxBky_X", related: [["DXBP8cJkxV0", "後續貼文"]] },
+      { date: "2026-04-10", kind: "串文", category: "醫學研究", title: "打嗝反射的影片補充", summary: "作者分享與打嗝反射相關的影片及後續連結。", caution: "未觀看完整影片；不將網路上的非典型處置當成自我治療建議。", id: "DW8v_a9E-wi", related: [["DW8wAQTkyhq", "後續連結"]] },
+      { date: "2026-03-31", kind: "串文", category: "運動與解剖", title: "手腕遠端橈骨骨折", summary: "作者借戲劇畫面介紹 Colles fracture（科氏骨折）一詞。", caution: "無法只看戲劇畫面確診傷勢；未核對影像。", id: "DWi8Jj7E-We" },
+      { date: "2026-03-30", kind: "串文", category: "動物與寵物", title: "貓咪與聽不見的飼主溝通", summary: "作者分享貓咪改變討食溝通方式的影片。", caution: "影片中的個案不能概括所有貓咪行為。", id: "DWfVmuqDxRZ" },
+      { date: "2026-03-28", kind: "串文", category: "醫學研究", title: "NSAIDs、腎臟風險與證據解讀", summary: "作者轉貼自己對止痛消炎藥和腎臟風險的回覆，提到大型樣本研究。", caution: "未核對藥物、劑量、族群與腎功能；不可據此自行判斷用藥安全。", id: "DWcI-jpk3KG", related: [["DWcJGt8E5p6", "相關續篇"]] },
+      { date: "2026-03-26", kind: "串文", category: "一般科學", title: "籃網海星的神經系統", summary: "作者介紹 basket starfish 的外形與分散式神經系統。", caution: "尚未核對物種與神經解剖資料。", id: "DWWIxGyDZ5Z" },
+      { date: "2026-03-21", kind: "串文", category: "運動與解剖", title: "上瞼提肌與眼皮動作", summary: "作者討論雙側眼皮動作與上瞼提肌控制。", caution: "單靠貼文無法判斷個人的眼瞼疾病。", id: "DWJYnQNEZwN" },
+      { date: "2026-03-20", kind: "串文", category: "一般科學", title: "奈米裝置輔助精子移動", summary: "作者分享用奈米裝置帶動精子靠近卵子的研究影像。", caution: "實驗示範不等於已有可用的臨床不孕治療。", id: "DWGVLdxkXlV" },
+      { date: "2026-03-19", kind: "串文", category: "運動與解剖", title: "汗水形成與散熱", summary: "作者分享汗腺分泌汗水的影像，說明出汗與散熱。", caution: "未核對影像來源及細部生理敘述。", id: "DWDngJ1k4WD" },
+      { date: "2026-03-17", kind: "串文", category: "動物與寵物", title: "狗如何用舌頭喝水", summary: "作者分享狗喝水的近距離影像，討論舌頭帶水的動作。", caution: "尚未核對影像與研究來源。", id: "DV_Cn6PjHuq" },
+      { date: "2026-03-16", kind: "串文", category: "一般科學", title: "水中的全反射", summary: "作者以水中光線影像介紹全反射概念。", caution: "需核對畫面中的入射角與介質條件。", id: "DV8zat-AHIh" },
+      { date: "2026-03-15", kind: "串文", category: "醫學研究", title: "短時間劇烈活動與心血管風險", summary: "作者提到短時間日常劇烈活動可能與心血管死亡風險下降有關。", caution: "原文百分比及研究設計未核對；有心血管疾病者不應依貼文自行安排強度。", id: "DV5TbiKk0gu" },
+      { date: "2026-03-13", kind: "串文", category: "一般科學", title: "突觸形成的縮時影像", summary: "作者分享神經連結變化的影像，提及突觸。", caution: "未核對影像拍攝條件與所示細胞類型。", id: "DV0qv2Uj0SG" },
+      { date: "2026-03-12", kind: "串文", category: "動物與寵物", title: "貓咪的物體恆常", summary: "作者討論貓咪尋找被遮住物品的能力，後續貼文也提到研究有分歧。", caution: "單一影片不能證明物體恆常或工作記憶程度。", id: "DVyLRNUjlMz", related: [["DVyMBpMk9Uc", "研究分歧的續篇"]] },
+      { date: "2026-03-07", kind: "串文", category: "運動與解剖", title: "頭骨的層次與保護", summary: "作者藉影像談頭骨構造及大腦保護。", caution: "未核對影像及續篇中的組織名稱。", id: "DVkhfetj5nG", related: [["DVkh3YVk9MT", "構造續篇"]] },
+      { date: "2026-03-06", kind: "串文", category: "一般科學", title: "植物氣孔與保衛細胞", summary: "作者分享植物氣孔開合影像，續篇提到保衛細胞。", caution: "尚未核對影片來源與植物種類。", id: "DViYIfaidXJ", related: [["DViYho3E-zg", "保衛細胞續篇"]] },
+      { date: "2026-03-04", kind: "串文", category: "醫學研究", title: "水腦症與腦部影像", summary: "作者用網路影像介紹 hydrocephalus（水腦症）名稱。", caution: "網路圖片與個案脈絡未核對；不能據外觀判斷預後。", id: "DVds2RYk-Oa" },
+      { date: "2026-02-27", kind: "串文", category: "醫學研究", title: "電子菸爆炸傷害個案", summary: "作者分享電子菸爆炸造成傷害的個案故事，續篇附有新聞連結。", caution: "原圖真偽及個案細節未獨立核對。", id: "DVQ6lN7ExM9", related: [["DVQ7OQOk_Ew", "新聞連結續篇"]] },
+      { date: "2026-02-18", kind: "串文", category: "運動與解剖", title: "屈指深肌與手指彎曲", summary: "作者以手臂深層肌肉介紹屈指深肌和手指末端彎曲。", caution: "未核對影片中的解剖示範。", id: "DU401kIjoNl" },
+      { date: "2026-02-06", kind: "串文", category: "醫學研究", title: "罕見皮膚疾病的影片", summary: "作者分享俗稱「樹人症」的罕見皮膚疾病影像。", caution: "原文病因與基因名稱未核對，不能作為診斷說明。", id: "DUaueTmE4dZ" },
+      { date: "2026-02-01", kind: "串文", category: "一般科學", title: "靜態影像的移動錯覺", summary: "作者分享看似移動的靜態圖片，並在續篇討論視覺處理。", caution: "尚未核對錯覺類型與神經機轉。", id: "DUN6FK_jYU5", related: [["DUN7P-Dkw56", "機轉續篇"]] },
+      { date: "2026-01-30", kind: "串文", category: "一般科學", title: "搖動圖像與視覺暫留", summary: "作者討論搖動線條時出現的人像與視覺暫留。", caution: "原文時間數值和動畫類比未核對。", id: "DUIbDdrD9lg" },
+      { date: "2026-01-27", kind: "串文", category: "醫學研究", title: "牙齒矯正縮時動畫", summary: "作者分享牙齒移動的模擬影像，談矯正治療的複雜性。", caution: "動畫不是個人治療預測。", id: "DUA8ynPjLI0" },
+      { date: "2026-01-18", kind: "串文", category: "一般科學", title: "簡諧運動與投影", summary: "作者用影像呈現彈簧運動和圓周運動投影的關係。", caution: "未核對示範裝置與運動條件。", id: "DTqDlqXjYGf" },
+      { date: "2026-01-10", kind: "串文", category: "醫學研究", title: "眼壓測量與青光眼", summary: "作者分享眼壓測量儀影像，並提到眼壓和青光眼。", caution: "青光眼不能只憑單次眼壓數值診斷；有症狀應就醫。", id: "DTUk0WqD4nG", related: [["DTUmV8uk8gX", "續篇"]] },
+      { date: "2025-12-29", kind: "串文", category: "醫學研究", title: "免疫細胞與癌細胞影像", summary: "作者分享免疫細胞追逐癌細胞的影像。", caution: "影像不能代表所有癌症或治療反應。", id: "DS2VELrDpWs" },
+      { date: "2025-12-28", kind: "串文", category: "醫學研究", title: "牙菌斑與牙周炎", summary: "作者介紹牙菌斑、牙齦及牙周組織的關係。", caution: "未核對影片與疾病分期，不能作為個人診斷。", id: "DSy7sg2DUr3", related: [["DSy-HOIk8az", "影像續篇"]] },
+      { date: "2025-12-21", kind: "串文", category: "醫學研究", title: "腎結石與草酸鈣結晶", summary: "作者分享腎結石表面影像，談草酸鈣結晶及水分攝取。", caution: "不同結石成分和治療方式不同；原文防治推論未核對。", id: "DShdfaPiagK" },
+      { date: "2025-11-29", kind: "串文", category: "一般科學", title: "受精時的鋅火花", summary: "作者分享受精過程中所謂 zinc spark 的影像與說明。", caution: "影像物種、拍攝方式和機轉尚未核對。", id: "DRn0sk6D2YM", related: [["DRn2GMmE7wt", "續篇"]] }
+    ];
+
+    const postUrl = id => "https://www.threads.com/@parker_pedia/post/" + id;
+    const byId = id => document.getElementById(id);
+    const cleanText = text => text.replaceAll("作者", "").replace(/^在回覆中/, "回覆中").trim();
+    const categories = [...new Set(posts.map(post => post.category))];
+    const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
+
+    function node(tag, className, content) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (content !== undefined) element.textContent = content;
+      return element;
+    }
+
+    function visiblePosts() {
+      const query = state.query.trim().toLocaleLowerCase();
+      return posts.filter(post =>
+        (!state.category || post.category === state.category) &&
+        (!state.kind || post.kind === state.kind) &&
+        (!query || [post.title, post.summary, post.date, post.category, post.caution].some(value => value.toLocaleLowerCase().includes(query)))
+      ).sort((a, b) => state.sort === "new" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
+    }
+
+    function renderNav() {
+      const nav = byId("unit-nav");
+      nav.replaceChildren();
+      for (const category of ["", ...categories]) {
+        const button = node("button", "unit-button", category || "全部貼文");
+        button.type = "button";
+        button.setAttribute("aria-current", category === state.category ? "page" : "false");
+        button.append(node("span", "unit-count", String(category ? posts.filter(post => post.category === category).length : posts.length)));
+        button.addEventListener("click", () => { state.category = category; render(); });
+        nav.append(button);
+      }
+    }
+
+    function renderList(items) {
+      const list = byId("post-list");
+      list.replaceChildren();
+      byId("empty-state").hidden = items.length > 0;
+      if (!items.some(post => post.id === state.selected)) state.selected = items[0] ? items[0].id : null;
+      for (const post of items) {
+        const button = node("button", "post-row");
+        button.type = "button";
+        button.setAttribute("aria-pressed", String(post.id === state.selected));
+        button.append(node("span", "post-row-date", post.date.replaceAll("-", "/") + " · " + post.kind));
+        button.append(node("strong", "post-row-title", post.title));
+        button.append(node("span", "post-row-summary", cleanText(post.summary)));
+        const bottom = node("span", "post-row-bottom");
+        bottom.append(node("span", "topic-label", post.category), node("span", "row-arrow", "↗"));
+        button.append(bottom);
+        button.addEventListener("click", () => {
+          state.selected = post.id;
+          renderList(items);
+          renderDetail();
+          if (window.matchMedia("(max-width: 1050px)").matches) document.querySelector(".detail").scrollIntoView({ behavior: "smooth" });
+        });
+        list.append(button);
+      }
+    }
+
+    function renderDetail() {
+      const container = byId("post-detail");
+      container.replaceChildren();
+      const post = posts.find(item => item.id === state.selected);
+      if (!post) {
+        container.append(node("p", "detail-placeholder", "請選擇一篇貼文。"));
+        return;
+      }
+      const top = node("div", "detail-top");
+      top.append(node("span", "detail-kicker", "貼文摘要 / " + post.category), node("time", "detail-date", post.date.replaceAll("-", "/")));
+      const summary = cleanText(post.summary);
+      container.append(top, node("h2", "detail-title", post.title), node("p", "detail-summary", summary));
+      const heading = node("h3", "detail-heading", "整理重點");
+      const points = node("ul", "detail-points");
+      for (const point of summary.split(/[；。]/).map(text => text.trim()).filter(Boolean)) {
+        points.append(node("li", "", point));
+      }
+      if (post.related && post.related.length) points.append(node("li", "", "另有 " + post.related.length + " 則相關內容，連結見下方。"));
+      container.append(heading, points);
+      const tags = node("div", "tag-row");
+      tags.append(node("span", "tag", post.kind), node("span", "tag", post.category));
+      container.append(tags);
+      const source = node("div", "source-block");
+      source.append(node("span", "source-label", "來源 · Threads"));
+      const links = node("div", "source-links");
+      const allLinks = [[post.id, "閱讀原文 ↗"], ...(post.related || []).map(item => [item[0], cleanText(item[1]) + " ↗"])];
+      for (const [id, label] of allLinks) {
+        const link = node("a", "", label);
+        link.href = postUrl(id);
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        links.append(link);
+      }
+      source.append(links);
+      container.append(source);
+    }
+
+    function render() {
+      const items = visiblePosts();
+      byId("current-unit").textContent = state.category || "全部貼文";
+      byId("unit-description").textContent = state.category ? "依主題整理相關串文與回覆；選取一篇可看摘要與原文。" : "依主題整理公開串文與回覆；選取一篇可看摘要與原文。";
+      byId("result-count").textContent = items.length + " 篇";
+      renderNav();
+      renderList(items);
+      renderDetail();
+    }
+
+    byId("source-count").textContent = posts.length + " 篇已整理";
+    byId("search").addEventListener("input", event => { state.query = event.target.value; render(); });
+    byId("kind").addEventListener("change", event => { state.kind = event.target.value; render(); });
+    byId("sort").addEventListener("change", event => { state.sort = event.target.value; render(); });
+    render();
+  </script>
+</body>
+</html>
