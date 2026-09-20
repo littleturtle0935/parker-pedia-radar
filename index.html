@@ -144,6 +144,16 @@
     const postUrl = id => "https://www.threads.com/@parker_pedia/post/" + id;
     const byId = id => document.getElementById(id);
     const cleanText = text => text.replaceAll("作者", "").replace(/^在回覆中/, "回覆中").trim();
+    const categoryHooks = {
+      "動物與寵物": "看似平常的動物行為，背後透露了什麼？",
+      "科技與資訊素養": "工具與資訊快速變化，真正值得注意的是什麼？",
+      "運動與解剖": "一個動作背後，牽動哪些身體結構與力量？",
+      "醫學研究": "從研究名詞到實際意義，中間有哪些關鍵環節？",
+      "營養與代謝": "看似簡單的飲食說法，代謝結果真的一樣嗎？",
+      "醫學爭點": "同一個醫學議題，爭論究竟卡在哪裡？",
+      "一般科學": "日常現象背後，藏著什麼科學原理？"
+    };
+    const engagingSummary = post => (categoryHooks[post.category] || "這個主題最值得理解的是什麼？") + cleanText(post.summary);
     const categories = [...new Set(posts.map(post => post.category))];
     const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
 
@@ -187,7 +197,7 @@
         button.setAttribute("aria-pressed", String(post.id === state.selected));
         button.append(node("span", "post-row-date", post.date.replaceAll("-", "/") + " · " + post.kind));
         button.append(node("strong", "post-row-title", post.title));
-        button.append(node("span", "post-row-summary", cleanText(post.summary)));
+        button.append(node("span", "post-row-summary", engagingSummary(post)));
         const bottom = node("span", "post-row-bottom");
         bottom.append(node("span", "topic-label", post.category), node("span", "row-arrow", "↗"));
         button.append(bottom);
@@ -212,7 +222,7 @@
       const top = node("div", "detail-top");
       top.append(node("span", "detail-kicker", "貼文摘要 / " + post.category), node("time", "detail-date", post.date.replaceAll("-", "/")));
       const summary = cleanText(post.summary);
-      container.append(top, node("h2", "detail-title", post.title), node("p", "detail-summary", summary));
+      container.append(top, node("h2", "detail-title", post.title), node("p", "detail-summary", engagingSummary(post)));
       const heading = node("h3", "detail-heading", "整理重點");
       const points = node("ul", "detail-points");
       for (const point of summary.split(/[；。]/).map(text => text.trim()).filter(Boolean)) {
