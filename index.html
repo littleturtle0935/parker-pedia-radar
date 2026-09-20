@@ -26,7 +26,7 @@
     .post-row-summary{font-size:13px}.topic-label{font-size:11px}.detail-top{font-size:12px}
     .detail-title{font-size:29px}.detail-summary{font-size:16px}.detail-heading{font-size:14px}
     .detail-points{font-size:14px}.tag,.source-label,.source-links a{font-size:12px}
-    @media(min-width:1051px){.workspace{height:calc(100vh - 56px);min-height:0}.sidebar,.results,.detail{overflow-y:auto;min-height:0}}
+    @media(min-width:1051px){.workspace{height:calc(100vh - 56px);min-height:0;grid-template-columns:var(--sidebar-width,240px) 8px var(--results-width,440px) 8px minmax(360px,1fr)}.sidebar,.results,.detail{overflow-y:auto;min-height:0}}
     @media(max-width:650px){.controls{flex-wrap:wrap}.search-field{flex-basis:100%}.controls .sort-field{flex:1}}
   </style>
 </head>
@@ -43,6 +43,7 @@
         <nav id="unit-nav" class="unit-nav" aria-label="選擇單元"></nav>
         <div class="sidebar-foot"><span id="source-count"></span><span>整理日期：2026-09-18</span></div>
       </aside>
+      <button class="column-resizer" type="button" data-column="sidebar" aria-label="調整分類欄寬度" title="拖曳調整欄寬；雙擊恢復預設"></button>
       <section class="results" aria-label="貼文列表">
         <div class="section-heading"><div><p class="eyebrow">THREADS / 公開串文與回覆</p><h2 id="current-unit">全部貼文</h2></div><span id="result-count" class="result-count" aria-live="polite"></span></div>
         <p id="unit-description" class="section-description"></p>
@@ -55,6 +56,7 @@
         <div id="post-list" class="post-list"></div>
         <p id="empty-state" class="empty-state" hidden>找不到符合條件的貼文。</p>
       </section>
+      <button class="column-resizer" type="button" data-column="results" aria-label="調整文章列表欄寬度" title="拖曳調整欄寬；雙擊恢復預設"></button>
       <section class="detail" aria-label="貼文摘要"><div id="post-detail"></div></section>
     </main>
   </div>
@@ -334,6 +336,60 @@
     byId("search").addEventListener("input", event => { state.query = event.target.value; render(); });
     byId("kind").addEventListener("change", event => { state.kind = event.target.value; render(); });
     byId("sort").addEventListener("change", event => { state.sort = event.target.value; render(); });
+    const workspace = document.querySelector(".workspace");
+    const columnDefaults = { sidebar: 240, results: 440 };
+    const columnMinimums = { sidebar: 190, results: 320 };
+    let columnWidths = { ...columnDefaults };
+
+    try {
+      columnWidths = { ...columnWidths, ...JSON.parse(localStorage.getItem("parker-column-widths") || "{}") };
+    } catch {}
+
+    function columnLimit(name) {
+      const other = name === "sidebar" ? "results" : "sidebar";
+      return Math.max(columnMinimums[name], workspace.clientWidth - columnWidths[other] - 376);
+    }
+
+    function setColumnWidth(name, value, save = false) {
+      const width = Math.round(Math.min(columnLimit(name), Math.max(columnMinimums[name], value)));
+      columnWidths[name] = width;
+      workspace.style.setProperty(`--${name}-width`, `${width}px`);
+      if (save) localStorage.setItem("parker-column-widths", JSON.stringify(columnWidths));
+    }
+
+    for (const name of Object.keys(columnWidths)) setColumnWidth(name, columnWidths[name]);
+    for (const handle of document.querySelectorAll(".column-resizer")) {
+      const name = handle.dataset.column;
+      handle.addEventListener("pointerdown", event => {
+        if (!matchMedia("(min-width: 1051px)").matches) return;
+        const startX = event.clientX;
+        const startWidth = columnWidths[name];
+        handle.setPointerCapture(event.pointerId);
+        handle.setAttribute("aria-pressed", "true");
+        document.body.classList.add("is-resizing");
+        const move = moveEvent => setColumnWidth(name, startWidth + moveEvent.clientX - startX);
+        const stop = () => {
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", stop);
+          handle.removeEventListener("pointercancel", stop);
+          handle.setAttribute("aria-pressed", "false");
+          document.body.classList.remove("is-resizing");
+          localStorage.setItem("parker-column-widths", JSON.stringify(columnWidths));
+        };
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", stop);
+        handle.addEventListener("pointercancel", stop);
+      });
+      handle.addEventListener("keydown", event => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        setColumnWidth(name, columnWidths[name] + (event.key === "ArrowRight" ? 16 : -16), true);
+      });
+      handle.addEventListener("dblclick", () => setColumnWidth(name, columnDefaults[name], true));
+    }
+    window.addEventListener("resize", () => {
+      for (const name of Object.keys(columnWidths)) setColumnWidth(name, columnWidths[name]);
+    });
     render();
   </script>
 </body>
