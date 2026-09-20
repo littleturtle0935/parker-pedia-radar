@@ -304,6 +304,17 @@
       "DEdpE3JT_mN": "用黑豆漿替代部分豬肉蛋白，四週後會出現什麼變化？研究觀察糖化終產物、全身發炎及產丁酸菌群。"
     };
     const engagingSummary = post => editorialSummaries[post.id] || cleanText(post.summary);
+    function editorialCopy(post) {
+      const full = engagingSummary(post);
+      const sentences = (full.match(/[^。！？!?]+[。！？!?]?/g) || [full]).map(text => text.trim()).filter(Boolean);
+      const hook = sentences[0] || "";
+      const canPromoteHook = sentences.length > 1 && hook.length >= 8 && hook.length <= 48;
+      return {
+        title: canPromoteHook ? hook.replace(/。$/, "") : post.title,
+        summary: canPromoteHook ? sentences.slice(1).join("") : full,
+        points: (canPromoteHook ? sentences.slice(1) : sentences).map(text => text.replace(/[。；]$/, "")).filter(Boolean)
+      };
+    }
     const categories = [...new Set(posts.map(post => post.category))];
     const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
 
@@ -342,12 +353,13 @@
       byId("empty-state").hidden = items.length > 0;
       if (!items.some(post => post.id === state.selected)) state.selected = items[0] ? items[0].id : null;
       for (const post of items) {
+        const copy = editorialCopy(post);
         const button = node("button", "post-row");
         button.type = "button";
         button.setAttribute("aria-pressed", String(post.id === state.selected));
         button.append(node("span", "post-row-date", post.date.replaceAll("-", "/") + " · " + post.kind));
-        button.append(node("strong", "post-row-title", post.title));
-        button.append(node("span", "post-row-summary", engagingSummary(post)));
+        button.append(node("strong", "post-row-title", copy.title));
+        button.append(node("span", "post-row-summary", copy.summary));
         const bottom = node("span", "post-row-bottom");
         bottom.append(node("span", "topic-label", post.category), node("span", "row-arrow", "↗"));
         button.append(bottom);
@@ -371,11 +383,11 @@
       }
       const top = node("div", "detail-top");
       top.append(node("span", "detail-kicker", "貼文摘要 / " + post.category), node("time", "detail-date", post.date.replaceAll("-", "/")));
-      const summary = engagingSummary(post);
-      container.append(top, node("h2", "detail-title", post.title), node("p", "detail-summary", summary));
+      const copy = editorialCopy(post);
+      container.append(top, node("h2", "detail-title", copy.title), node("p", "detail-summary", copy.summary));
       const heading = node("h3", "detail-heading", "整理重點");
       const points = node("ul", "detail-points");
-      for (const point of summary.split(/[；。]/).map(text => text.trim()).filter(Boolean)) {
+      for (const point of copy.points) {
         points.append(node("li", "", point));
       }
       if (post.related && post.related.length) points.append(node("li", "", "另有 " + post.related.length + " 則相關內容，連結見下方。"));
