@@ -28,6 +28,13 @@
     .detail-points{font-size:14px}.tag,.source-label,.source-links a{font-size:12px}
     @media(min-width:1051px){.workspace{height:calc(100vh - 56px);min-height:0;grid-template-columns:var(--sidebar-width,240px) 1px var(--results-width,440px) 1px minmax(360px,1fr)}.sidebar,.results,.detail{overflow-y:auto;min-height:0}}
     @media(max-width:650px){.controls{flex-wrap:wrap}.search-field{flex-basis:100%}.controls .sort-field{flex:1}}
+    .reader-back{display:none}
+    @media(max-width:1050px){
+      .detail{display:none}
+      body.reading{position:fixed;width:100%;overflow:hidden}
+      body.reading .detail{display:block;position:fixed;inset:0;z-index:20;overflow-y:auto;overscroll-behavior:contain;background:#f5f7f5;border:0;padding:0 20px 40px}
+      .reader-back{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:1;width:100%;min-height:56px;margin:0 0 24px;padding:12px 0;border:0;border-bottom:1px solid #d9e3db;background:#f5f7f5;color:#08766f;text-align:left}
+    }
   </style>
 </head>
 <body>
@@ -57,7 +64,7 @@
         <p id="empty-state" class="empty-state" hidden>找不到符合條件的貼文。</p>
       </section>
       <button class="column-resizer" type="button" data-column="results" aria-label="調整文章列表欄寬度" title="拖曳調整欄寬；雙擊恢復預設"></button>
-      <section class="detail" aria-label="貼文摘要"><div id="post-detail"></div></section>
+      <section class="detail" aria-label="貼文摘要"><button class="reader-back" type="button" aria-label="返回文章列表"><span aria-hidden="true">←</span> 返回列表</button><div id="post-detail"></div></section>
     </main>
   </div>
   <script>
@@ -318,6 +325,45 @@
     }
     const categories = [...new Set(posts.map(post => post.category))];
     const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
+    const mobileReader = matchMedia("(max-width:1050px)");
+    let listScrollY = 0;
+    let reading = false;
+    let opener = null;
+    function showReader() {
+      if (!reading) {
+        listScrollY = window.scrollY;
+        reading = true;
+        document.body.style.top = "-" + listScrollY + "px";
+        document.body.classList.add("reading");
+        for (const selector of [".results", ".sidebar", ".topbar"]) document.querySelector(selector).inert = true;
+      }
+      document.querySelector(".detail").scrollTop = 0;
+      document.querySelector(".reader-back").focus({ preventScroll: true });
+    }
+    function hideReader() {
+      if (!reading) return;
+      reading = false;
+      document.body.classList.remove("reading");
+      document.body.style.top = "";
+      for (const selector of [".results", ".sidebar", ".topbar"]) document.querySelector(selector).inert = false;
+      window.scrollTo(0, listScrollY);
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    }
+    window.addEventListener("popstate", event => {
+      const id = event.state && event.state.parkerArticle;
+      if (id && mobileReader.matches && posts.some(post => post.id === id)) {
+        state.selected = id;
+        renderDetail();
+        showReader();
+      } else hideReader();
+    });
+    document.querySelector(".reader-back").addEventListener("click", () => {
+      if (history.state && history.state.parkerArticle) history.back();
+      else hideReader();
+    });
+    mobileReader.addEventListener("change", () => {
+      if (!mobileReader.matches) hideReader();
+    });
 
     function node(tag, className, content) {
       const element = document.createElement(tag);
@@ -331,7 +377,7 @@
       return posts.filter(post =>
         (!state.category || post.category === state.category) &&
         (!state.kind || post.kind === state.kind) &&
-        (!query || [post.title, post.summary, post.date, post.category, post.caution].some(value => value.toLocaleLowerCase().includes(query)))
+        (!query || [post.title, post.summary, post.date, post.category, post.caution].some(value => (value || "").toLocaleLowerCase().includes(query)))
       ).sort((a, b) => state.sort === "new" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
     }
 
@@ -366,9 +412,16 @@
         button.append(bottom);
         button.addEventListener("click", () => {
           state.selected = post.id;
+          if (mobileReader.matches) {
+            opener = button;
+            for (const row of list.children) row.setAttribute("aria-pressed", String(row === button));
+            renderDetail();
+            history.pushState({ parkerArticle: post.id }, "", "#article=" + encodeURIComponent(post.id));
+            showReader();
+            return;
+          }
           renderList(items);
           renderDetail();
-          if (window.matchMedia("(max-width: 1050px)").matches) document.querySelector(".detail").scrollIntoView({ behavior: "smooth" });
         });
         list.append(button);
       }
