@@ -338,7 +338,10 @@
         points: (canPromoteHook ? sentences.slice(1) : sentences).map(text => text.replace(/[。；]$/, "")).filter(Boolean)
       };
     }
-    const categories = [...new Set(posts.map(post => post.category))];
+    const categories = [...new Set(posts.map(post => post.category))].sort((a, b) => {
+      const latest = category => posts.filter(post => post.category === category).reduce((date, post) => post.date > date ? post.date : date, "");
+      return latest(b).localeCompare(latest(a));
+    });
     const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
     const mobileReader = matchMedia("(max-width:1050px)");
     let listScrollY = 0;
