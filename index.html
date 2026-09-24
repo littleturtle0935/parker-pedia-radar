@@ -13,6 +13,8 @@
     .controls .sort-field{min-width:0}
     .controls .sort-field select{max-width:90px}
     .detail-type{color:#60766c;font-size:11px}
+    .view-type-label{color:#08766f;font-size:11px;font-weight:700}
+    .view-type-filter{min-width:120px}
     .source-links{display:flex;flex-wrap:wrap;gap:14px}
     .source-links a{font-size:12px;font-weight:800;color:#00796f;text-decoration:none}
     .source-links a:hover{text-decoration:underline}
@@ -58,6 +60,7 @@
         <div class="controls">
           <label class="search-field"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><input id="search" type="search" placeholder="搜尋主題、摘要、日期" aria-label="搜尋貼文"></label>
           <label class="sort-field">類型 <select id="kind" aria-label="內容類型"><option value="">全部</option><option value="串文">串文</option><option value="回覆">回覆</option></select></label>
+          <label class="sort-field view-type-filter">觀影類型 <select id="view-type" aria-label="觀影類型"><option value="">全部</option><option value="衛教整理">衛教整理</option><option value="研究解讀">研究解讀</option><option value="科普概念">科普概念</option><option value="觀點討論">觀點討論</option><option value="行為與動物">行為與動物</option><option value="解剖與運動">解剖與運動</option><option value="科技思辨">科技思辨</option></select></label>
           <label class="sort-field">排序 <select id="sort" aria-label="排序方式"><option value="new">最新優先</option><option value="old">最早優先</option></select></label>
         </div>
         <div id="post-list" class="post-list"></div>
@@ -325,7 +328,7 @@
       };
     }
     const categories = [...new Set(posts.map(post => post.category))];
-    const state = { category: "", kind: "", query: "", sort: "new", selected: posts[0].id };
+    const state = { category: "", kind: "", viewType: "", query: "", sort: "new", selected: posts[0].id };
     const mobileReader = matchMedia("(max-width:1050px)");
     let listScrollY = 0;
     let reading = false;
@@ -378,8 +381,20 @@
       return posts.filter(post =>
         (!state.category || post.category === state.category) &&
         (!state.kind || post.kind === state.kind) &&
-        (!query || [post.title, post.summary, post.date, post.category, post.caution].some(value => (value || "").toLocaleLowerCase().includes(query)))
+        (!state.viewType || viewingType(post) === state.viewType) &&
+        (!query || [post.title, post.summary, post.date, post.category, post.caution, viewingType(post)].some(value => (value || "").toLocaleLowerCase().includes(query)))
       ).sort((a, b) => state.sort === "new" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
+    }
+
+    function viewingType(post) {
+      const text = (post.title + " " + post.summary).toLocaleLowerCase();
+      if (post.category === "動物與寵物") return "行為與動物";
+      if (post.category === "運動與解剖") return "解剖與運動";
+      if (post.category === "醫學爭點") return "觀點討論";
+      if (post.category === "科技與資訊素養") return "科技思辨";
+      if (post.category === "營養與代謝" || /衛教|糖尿病|尿酸|膽固醇|飲食|果糖|血糖|膳食|維生素|營養/.test(text)) return "衛教整理";
+      if (post.category === "醫學研究") return "研究解讀";
+      return "科普概念";
     }
 
     function renderNav() {
@@ -409,7 +424,7 @@
         button.append(node("strong", "post-row-title", copy.title));
         button.append(node("span", "post-row-summary", copy.summary));
         const bottom = node("span", "post-row-bottom");
-        bottom.append(node("span", "topic-label", post.category), node("span", "row-arrow", "↗"));
+        bottom.append(node("span", "topic-label", post.category), node("span", "view-type-label", viewingType(post)), node("span", "row-arrow", "↗"));
         button.append(bottom);
         button.addEventListener("click", () => {
           state.selected = post.id;
@@ -437,7 +452,7 @@
         return;
       }
       const top = node("div", "detail-top");
-      top.append(node("span", "detail-kicker", "貼文摘要 / " + post.category), node("time", "detail-date", post.date.replaceAll("-", "/")));
+      top.append(node("span", "detail-kicker", "貼文摘要 / " + post.category + " · " + viewingType(post)), node("time", "detail-date", post.date.replaceAll("-", "/")));
       const copy = editorialCopy(post);
       container.append(top, node("h2", "detail-title", copy.title), node("p", "detail-summary", copy.summary));
       const heading = node("h3", "detail-heading", "整理重點");
@@ -448,7 +463,7 @@
       if (post.related && post.related.length) points.append(node("li", "", "另有 " + post.related.length + " 則相關內容，連結見下方。"));
       container.append(heading, points);
       const tags = node("div", "tag-row");
-      tags.append(node("span", "tag", post.kind), node("span", "tag", post.category));
+      tags.append(node("span", "tag", post.kind), node("span", "tag", post.category), node("span", "tag", "觀影類型：" + viewingType(post)));
       container.append(tags);
       const source = node("div", "source-block");
       source.append(node("span", "source-label", "來源 · Threads"));
@@ -478,6 +493,7 @@
     byId("source-count").textContent = posts.length + " 篇已整理";
     byId("search").addEventListener("input", event => { state.query = event.target.value; render(); });
     byId("kind").addEventListener("change", event => { state.kind = event.target.value; render(); });
+    byId("view-type").addEventListener("change", event => { state.viewType = event.target.value; render(); });
     byId("sort").addEventListener("change", event => { state.sort = event.target.value; render(); });
     const workspace = document.querySelector(".workspace");
     const columnDefaults = { sidebar: 240, results: 440 };
