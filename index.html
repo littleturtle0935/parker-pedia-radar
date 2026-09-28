@@ -402,6 +402,18 @@
       ).sort((a, b) => state.sort === "new" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
     }
 
+    function orderedCategories() {
+      const latest = new Map();
+      for (const post of posts) {
+        if (post.category === "觀影心得") continue;
+        if (post.date > (latest.get(post.category) || "")) latest.set(post.category, post.date);
+      }
+      // Keep the established order when categories share the latest date.
+      const topics = [...new Set([...categories.filter(category => category !== "觀影心得"), ...latest.keys()])];
+      topics.sort((a, b) => (latest.get(b) || "").localeCompare(latest.get(a) || ""));
+      return ["", "觀影心得", ...topics];
+    }
+
     function renderNav() {
       const nav = byId("unit-nav");
       nav.replaceChildren();
@@ -413,7 +425,7 @@
         button.addEventListener("click", () => { state.category = category; render(); });
         return button;
       }
-      for (const category of ["", ...categories]) nav.append(categoryButton(category));
+      for (const category of orderedCategories()) nav.append(categoryButton(category));
     }
 
     function renderList(items) {
