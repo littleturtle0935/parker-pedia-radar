@@ -52,13 +52,13 @@
         <div class="author"><div class="author-icon" aria-hidden="true">P</div><div><h1>帕克</h1><p>@parker_pedia</p></div></div>
         <div class="sidebar-heading">單元</div>
         <nav id="unit-nav" class="unit-nav" aria-label="選擇單元"></nav>
-        <div class="sidebar-foot"><span id="source-count"></span><span>整理日期：2026-09-28</span></div>
+        <div class="sidebar-foot"><span id="source-count"></span><span>整理日期：2026-10-02</span></div>
       </aside>
       <button class="column-resizer" type="button" data-column="sidebar" aria-label="調整分類欄寬度" title="拖曳調整欄寬；雙擊恢復預設"></button>
       <section class="results" aria-label="貼文列表">
         <div class="section-heading"><div><p class="eyebrow">THREADS / 公開串文與回覆</p><h2 id="current-unit">全部貼文</h2></div><span id="result-count" class="result-count" aria-live="polite"></span></div>
         <p id="unit-description" class="section-description"></p>
-        <p class="coverage">已檢視範圍：串文讀至 2026/09，回覆讀至平台目前可見範圍，並檢視轉發內容；收錄衛教、科普、研究文字與具完整文字脈絡的觀影心得，純影片且無文字補充者略過。</p>
+        <p class="coverage">已檢視範圍：串文讀至 2026/10，回覆讀至平台目前可見範圍，並檢視轉發內容；收錄衛教、科普、研究文字與具完整文字脈絡的觀影心得，純影片且無文字補充者略過。</p>
         <div class="controls">
           <label class="search-field"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><input id="search" type="search" placeholder="搜尋主題、摘要、日期" aria-label="搜尋貼文"></label>
           <label class="sort-field">類型 <select id="kind" aria-label="內容類型"><option value="">全部</option><option value="串文">串文</option><option value="回覆">回覆</option></select></label>
@@ -73,6 +73,13 @@
   </div>
   <script>
     const posts = [
+      { date: "2026-10-01", kind: "回覆", category: "科技與學習", title: "折線圖、變異數分析與統計差異", summary: "折線圖只能協助觀察趨勢，真正判斷不同月份是否有統計差異，需比較組間差異與組內差異。作者以 SSB、SSW 和變異數分析說明，圖形呈現與統計檢定不是同一件事。", caution: "回覆未提供完整資料、模型假設或檢定結果，不能單靠這段文字判定原研究是否成立。", id: "Dd9cV7FE-AM" },
+      { date: "2026-10-01", kind: "串文", category: "心理與認知", title: "占星研究與人格差異", summary: "作者提到一項約 15,000 人的占星研究，稱不同星座在個性指標上的差異未達統計顯著，並指出其他研究也不支持星座能解釋人格差異。", caution: "貼文沒有列出完整論文與分析細節；樣本數大不等於研究結論必然可靠，仍需核對原始研究。", id: "Dd8y4gPE-k9" },
+      { date: "2026-09-28", kind: "回覆", category: "物理與現象", title: "光纖全反射與物理解題方向", summary: "面對結合數學的物理題，作者建議先抓住光纖全反射這條主軸，再把其餘數學視為支線，藉此建立解題方向。", id: "Dd2BGknE_aL" },
+      { date: "2026-09-25", kind: "回覆", category: "化學與生活", title: "原子軌域與量子化學的學習順序", summary: "作者建議先補普通高中的原子理論，再進入大學普通化學的軌域內容；更深入時會連到量子力學，難度明顯提高，初學者聽不懂不必氣餒。", id: "DdrcQ9hE0Qg" },
+      { date: "2026-09-25", kind: "回覆", category: "醫學與健康", title: "小傷口處理屬於急救範圍", summary: "作者回應割傷處理問題，將小傷口的初步應對歸在急救學範圍，並區分外科課程較常處理的大型傷口。", caution: "貼文沒有提供完整處置步驟；若傷口深、污染明顯、持續出血或影響活動，應尋求專業醫療評估。", id: "DdvSUyeE7-r" },
+      { date: "2026-09-23", kind: "回覆", category: "科技與學習", title: "AI 課程與變現話術的判讀", summary: "作者提醒，部分高價 AI 或變現課程以免費活動吸引參加者，再導向數萬元課程；選課前應搜尋評價，並檢查活動是否提供具體教學內容。", caution: "作者對市場成功率的描述未附整體資料，不能推論所有課程；仍應逐一檢查師資、課綱、退費條款與可驗證成果。", id: "DdoniIukzrG" },
+      { date: "2026-09-23", kind: "回覆", category: "心理與認知", title: "波爾加姊妹與系統性培育", summary: "作者以波爾加三姊妹在刻意栽培下成為西洋棋頂尖棋手的故事，討論能力與天賦能否透過長期、系統性的環境培育。", caution: "單一家庭案例不能單獨證明所有天賦都能被複製培育；仍需考慮選擇偏差、個體差異與更廣泛研究。", id: "Ddno53OEwxp" },
       { date: "2026-09-22", kind: "回覆", category: "科技與學習", title: "技術被取代之後，人類還剩下什麼？", summary: "當計算機接手純技術工作，人類的優勢會轉到哪裡？這段討論從技術性知識的自動化，延伸到專精、跨域、創意、靈感與真實情感，提出人類仍可能在創造、判斷與反思中保持不可取代的部分。", id: "DdiXpZhk0-T" },
       { date: "2026-09-19", kind: "回覆", category: "醫學與健康", title: "預防、功能性治療與疾病治療的合作", summary: "預防醫學、功能性治療與疾病治療，能如何一起思考健康？這則討論將三者視為不同面向，提出以整體（holistic）觀點串連的合作方向。焦點在於各自的切入方式，以及跨領域團隊如何協作。", id: "DdeoH6KEyKO" },
       { date: "2026-09-10", kind: "串文", category: "觀影心得", title: "劇場版 魔法少女小圓〈瓦爾普吉斯的迴天〉", summary: "原作跟叛逆看完覺得已經很足夠\n最新劇場版似乎想要\n引入一個新角色，來做為制衡\n或當作一種價值上的對立\n處理的似乎不甚理想\n難免評價兩極，不過海報好看…👌", id: "DdGZvo1E8_n" },
